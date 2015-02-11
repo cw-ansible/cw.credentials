@@ -1,0 +1,55 @@
+---
+
+- name: Delete users that do not match current host
+  user:
+    name: '{{ item.name }}'
+    state: absent
+  with_items: credentials_users
+  when:
+    ( item.hosts is not defined  or
+    ( item.hosts is defined and not ansible_hostname|match_hosts(item.hosts)))
+  
+- name: Create users
+  user:
+    append: '{{item.append|default("no")}}'
+    comment: '{{item.comment|default()}}'
+    createhome: '{{item.createhome|default("yes")}}'
+    force: '{{item.force|default("no")}}'
+    generate_ssh_key: '{{item.generate_ssh_key|default("no")}}'
+    groups: '{{item.groups|default([])|join(",")}}'
+    home: '{{item.home|default("/home/" + item.name)}}'
+    move_home: '{{item.move_home|default("no")}}'
+    name: '{{item.name}}'
+    non_unique: '{{item.non_unique|default("no")}}'
+    password: '{{item.password|default("*")}}'
+    remove: '{{item.remove|default("no")}}'
+    shell: '{{item.shell|default("/bin/bash")}}'
+    ssh_key_bits: '{{item.ssh_key_bits|default()}}'
+    ssh_key_comment: '{{item.ssh_key_comment|default()}}'
+    ssh_key_file: '{{item.ssh_key_file|default()}}'
+    ssh_key_passphrase: '{{item.ssh_key_passphrase|default()}}'
+    ssh_key_type: '{{item.ssh_key_type|default()}}'
+    state: '{{item.state|default("present")}}'
+    system: '{{item.system|default("no")}}'
+    uid: '{{item.uid|default()}}'
+    update_password: '{{item.update_password|default("always")}}'
+  with_items: credentials_users
+  when:
+    item.hosts and
+    ansible_hostname|match_hosts(item.hosts)
+  
+    
+- name: Add ssh authorized_keys
+  authorized_key:
+    user: "{{ item.0.name }}"
+    key: '{{ item.1.key }}'
+    key_options: '{{ item.1.key_options | default() }}'
+    manage_dir: '{{ item.1.manage_dir | default(True) }}'
+    state: '{{ item.1.state | default("present") }}'
+    path: '{{ item.1.path | default("(homedir)+/.ssh/authorized_keys") }}'
+  when:
+    item.0.hosts and
+    ansible_hostname|match_hosts(item.0.hosts)
+  with_subelements_safe:
+    - credentials_users
+    - ssh_keys

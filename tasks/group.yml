@@ -1,0 +1,10 @@
+---
+
+- name: Create groups
+  group:
+    name='{{ item.name }}'
+    gid='{{ item.gid }}'
+    state='{{ item.state|default("present")}}'
+    system='{{ item.state|default("no")}}'
+  with_items: credentials_groups
+  when: credentials_groups is defined

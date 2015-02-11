@@ -1,0 +1,51 @@
+---
+
+## credentials_groups: list of group definitions
+#
+# Each list element is a dictionary as defined in the 'group' module (See
+# ansible-doc group for further detail about how to define a group).
+#
+# As long as the 'user' module creates a group for each user you probably
+# don't want to create a group for a new user unless you do have special
+# needs.
+#
+##
+# credentials_groups:
+#   - name: webdev
+#     uid: 2000
+#
+
+
+## credentials_users: list of user definitions
+#
+# Each list element is a dictionary as defined in the 'user' module (See
+# ansible-doc user for further detail about how to define a user).
+#
+# In addition some other keys can be defined:
+#
+# - 'hosts': a list of (or a single) host definitions to be matched against
+#   'ansible_hostname' If 'hosts' is defined AND a match occurs, the user is
+#   created. The user is deleted otherwise. The match is done using
+#   fnmatch. Use '*' to match all hosts.
+#
+# - 'ssh_keys': A list of dictionary which item follows the Ansible
+#   'authorized_key' module.
+#
+# - 'sudo': A list of lines that should be installed on the sudoers
+#   files. The line is added as it ans validated using the '/usr/sbin/visudo
+#   -cf %s' command. On modern platforms where '/etc/sudoers.d' is
+#   supported, the lines are inserted on the '/etc/sudoers.d/USER' file
+#   instead of '/etc/sudoers'
+#
+##
+# credentials_users:
+#   - name: vagrant
+#     uid: 1000
+#     comment: 'Vagrant'
+#     hosts: '*'
+#     ssh_keys:
+#       - key: INSERT_VAGRANT_PUBLIC_KEY_HERE
+#     sudo:
+#       - line: 'vagrant ALL=(ALL) NOPASSWD:ALL'
+
+

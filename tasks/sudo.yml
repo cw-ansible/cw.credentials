@@ -1,0 +1,29 @@
+- name: add user sudo
+  lineinfile:
+    dest: "/etc/sudoers.d/{{ item.0.name }}"
+    mode: 0440
+    create: yes
+    regexp: '^{{ item.1.line|re_escape() }}'
+    line: '{{ item.1.line | default() }}'
+    state: '{{ item.1.state | default("present") }}'
+    validate: '/usr/sbin/visudo -cf %s'
+  when:
+    credentials_users is defined  and
+    item.0.hosts and
+    ansible_hostname|match_hosts(item.0.hosts)
+  with_subelements_safe:
+    - credentials_users
+    - sudo
+
+- name: delete user sudo file for removed users
+  file:
+    dest: "/etc/sudoers.d/{{ item.0.name }}"
+    state: absent
+  when:
+    credentials_users is defined
+    and (item.0.hosts is not defined
+    or not ansible_hostname|match_hosts(item.0.hosts)
+    or items.1.state in [ 'absent' ])
+  with_subelements_safe:
+    - credentials_users
+    - sudo

@@ -1,0 +1,14 @@
+- name: add user sudo (old)
+  lineinfile:
+    dest: "/etc/sudoers"
+    mode: 0440
+    regexp: '^{{ item.0.name }} '
+    line: '{{ item.1.line | default() }}'
+    state: '{{ item.1.state | default("present") }}'
+  when:
+    credentials_users is defined and
+    item.0.hosts and
+    ansible_hostname|match_hosts(item.0.hosts)
+  with_subelements_safe:
+    - credentials_users
+    - sudo
