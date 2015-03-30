@@ -37,8 +37,7 @@
   when:
     item.hosts and
     ansible_hostname|match_hosts(item.hosts)
-  
-    
+
 - name: Add ssh authorized_keys
   authorized_key:
     user: "{{ item.0.name }}"
@@ -46,7 +45,7 @@
     key_options: '{{ item.1.key_options | default() }}'
     manage_dir: '{{ item.1.manage_dir | default(True) }}'
     state: '{{ item.1.state | default("present") }}'
-    path: '{{ item.1.path | default("(homedir)+/.ssh/authorized_keys") }}'
+    path: '{{item.home|default("/home/" + item.0.name) + "/.ssh/authorized_keys"}}'
   when:
     item.0.hosts and
     ansible_hostname|match_hosts(item.0.hosts)
