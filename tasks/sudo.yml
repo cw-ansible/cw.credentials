@@ -3,7 +3,7 @@
     dest: "/etc/sudoers.d/{{ item.0.name }}"
     mode: 0440
     create: yes
-    regexp: '^{{ item.1.line|re_escape() }}'
+    regexp: '^{{ item.1.line|regexp_escape() }}'
     line: '{{ item.1.line | default() }}'
     state: '{{ item.1.state | default("present") }}'
     validate: '/usr/sbin/visudo -cf %s'
