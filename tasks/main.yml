@@ -10,22 +10,38 @@
   apt: pkg={{item}} install_recommends=no
   with_items:
     - sudo
-  when: ansible_lsb.id not in [ 'CentOS' ]
+  when: ansible_distribution not in [ 'CentOS', 'OpenBSD' ]
 
 - name: copy ssh/sftp sudo wrapper
   copy:
     src: etc/ssh/sudo-wrapper
     dest: /etc/ssh/sudo-wrapper
     owner: root
-    group: root
     mode: '0755'
-  
+
+- name: Change ssh/sftp sudo wrapper group (root)
+  file:
+    path: /etc/ssh/sudo-wrapper
+    group: root
+  when:
+    ansible_distribution not in [ 'OpenBSD' ]
+
+
+- name: Change ssh/sftp sudo wrapper group (wheel)
+  file:
+    path: /etc/ssh/sudo-wrapper
+    group: wheel
+  when:
+    ansible_distribution in [ 'OpenBSD' ]
+    
 - include: sudo.yml
   when:
-    ansible_lsb.codename not in [ "sarge", "etch", "lenny" ] or
-    ansible_lsb.id not in [ 'CentOS' ]
+    (ansible_lsb is defined and ansible_lsb.codename is defined and
+       ansible_lsb.codename not in [ "sarge", "etch", "lenny" ]) or
+    ansible_distribution not in [ 'CentOS', 'OpenBSD' ]
 
 - include: sudo-old.yml
   when:
-    ansible_lsb.codename in [ "sarge", "etch", "lenny" ] or
-    ansible_lsb.id in [ 'CentOS' ]
+    (ansible_lsb is defined and ansible_lsb.codename is defined and
+       ansible_lsb.codename in [ "sarge", "etch", "lenny" ]) or
+    ansible_distribution in [ 'CentOS', 'OpenBSD' ]
