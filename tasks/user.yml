@@ -35,6 +35,7 @@
     update_password: '{{item.update_password|default("always")}}'
   with_items: credentials_users
   when:
+    credentials_users is defined and
     item.hosts and
     ansible_hostname|match_hosts(item.hosts)
 
@@ -47,6 +48,7 @@
     state: '{{ item.1.state | default("present") }}'
     path: '{{item.home|default("/home/" + item.0.name) + "/.ssh/authorized_keys"}}'
   when:
+    credentials_users is defined and
     item.0.hosts and
     ansible_hostname|match_hosts(item.0.hosts)
   with_subelements_safe:
